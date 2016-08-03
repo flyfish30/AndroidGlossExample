@@ -1,3 +1,5 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
 apply plugin: 'com.android.application'
 
 android {
@@ -10,13 +12,36 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+
+        ndk {
+            moduleName "gloss-example"
+            abiFilters "arm64-v8a"
+        }
+
+        sourceSets.main {
+            jni.srcDirs = [] //disable automatic ndk-build call
+            jniLibs.srcDir 'src/main/libs' //set .so files directory to libs
+        }
     }
+
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
+}
+
+task ndkBuild(type: Exec) {
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        commandLine 'd:/tools/android-ndk-r10d/ndk-build.cmd', '-C', file('src/main/jni').absolutePath
+    } else {
+        commandLine '/opt/Android/android-ndk-r10e/ndk-build', '-C', file('src/main/jni').absolutePath
+    }
+}
+
+tasks.withType(JavaCompile) {
+    compileTask -> compileTask.dependsOn ndkBuild
 }
 
 dependencies {
