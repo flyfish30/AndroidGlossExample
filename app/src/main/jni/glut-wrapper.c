@@ -40,7 +40,7 @@ int main(int argc, char** argv)
 
     LOGI("Enter main\n");
     app_dummy();
-    handle = dlopen("libgloss-example.so", RTLD_LAZY);
+    handle = dlopen("libgloss-example.so", RTLD_LAZY | RTLD_GLOBAL);
     if (handle = NULL) {
         LOGW("Failed to open library libgloss-example.so\n");
         return -1;
